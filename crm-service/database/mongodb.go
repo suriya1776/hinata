@@ -41,5 +41,6 @@ func init() {
 	// Select the database and collection
 	usersCollection = client.Database("hinata").Collection("users")
 	bankStateCollection = client.Database("hinata").Collection("bank_state")
+	rolesCollection = client.Database("hinata").Collection("roles")
 
 }

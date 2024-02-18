@@ -41,9 +41,18 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// Check if "username" and "role" keys are present and have the correct type
+		username, usernameOK := claims["username"].(string)
+		role, roleOK := claims["role"].(string)
+		if !usernameOK || !roleOK {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing username or role in token"})
+			c.Abort()
+			return
+		}
+
 		// Set user information in the request context
-		c.Set("username", claims["username"].(string))
-		c.Set("role", claims["role"].(string))
+		c.Set("username", username)
+		c.Set("role", role)
 
 		// Continue to the next middleware or handler
 		c.Next()

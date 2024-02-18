@@ -12,7 +12,7 @@ import (
 )
 
 // Token will expire in 5 minutes
-const tokenExpiration = 5 * time.Minute // Token expiration time
+// const tokenExpiration = 5 * time.Minute // Token expiration time
 
 func LoginHandler(c *gin.Context) {
 	var loginRequest models.LoginRequest
@@ -48,12 +48,15 @@ func LoginHandler(c *gin.Context) {
 }
 
 func generateToken(user *models.BankUser) (string, error) {
-	// Create a new JWT token with user information and expiration time
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	expirationTime := time.Now().Add(1 * time.Hour) // Set the expiration time (e.g., one hour from now)
+
+	rolesClaim := jwt.MapClaims{
 		"username": user.Username,
-		"role":     user.Role,
-		"exp":      time.Now().Add(tokenExpiration).Unix(),
-	})
+		"role":     user.Roles[0],         // Assuming you want to include the first role as a separate field,
+		"exp":      expirationTime.Unix(), // Set the expiration time in Unix timestamp format
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, rolesClaim)
 
 	// Sign the token with a secret key
 	tokenString, err := token.SignedString([]byte(GetRandomSecret()))

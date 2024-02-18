@@ -1,4 +1,3 @@
-// models/login_request.go
 package models
 
 // LoginRequest represents the structure of a login request

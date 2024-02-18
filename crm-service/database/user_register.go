@@ -29,7 +29,9 @@ func RegisterUser(c *gin.Context, user models.BankUser) error {
 
 	// Always set the role to "user" for registration
 	// in future admin can alter the role of every users
-	user.Role = "user"
+	// Always set the role to "user" for registration
+	// In the future, admin can alter the role of every user
+	user.Roles = []string{"user"}
 
 	// Insert the user
 	_, err = usersCollection.InsertOne(context.TODO(), user)

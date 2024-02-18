@@ -25,7 +25,7 @@ func main() {
 	// Register API routes
 	routes.SetupAuthRoutes(router)
 	routes.SetupUserRoutes(router)
-
+	routes.SetupBankRoutes(router)
 	// Run the server
 	router.Run(":8080")
 }

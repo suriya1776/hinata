@@ -34,7 +34,7 @@ func InitializeMasterUser() error {
 		Username:    "admin",
 		Password:    hashedMasterPassword, // You should hash the password before storing it in production
 		Designation: "admin",
-		Role:        "admin",
+		Roles:       []string{"admin"},
 	}
 
 	// Insert the master user into the "users" collection

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"regexp"
 	"strings"
 
 	"github.com/suriya1776/hinata/crm-service/models"
@@ -20,6 +21,7 @@ func isStrongPassword(password string) error {
 	hasUpperCase := false
 	hasNumber := false
 	hasSpecialChar := false
+	hasSpace := false
 
 	for _, char := range password {
 		if char >= 'A' && char <= 'Z' {
@@ -28,6 +30,8 @@ func isStrongPassword(password string) error {
 			hasNumber = true
 		} else if strings.ContainsAny(string(char), "!@#$%^&*()-_=+[]{}|;:'\",.<>?/") {
 			hasSpecialChar = true
+		} else if char == ' ' {
+			hasSpace = true
 		}
 	}
 
@@ -44,6 +48,9 @@ func isStrongPassword(password string) error {
 	}
 	if !hasSpecialChar {
 		missingRequirements = append(missingRequirements, "at least 1 special character")
+	}
+	if hasSpace {
+		missingRequirements = append(missingRequirements, "spaces are not allowed")
 	}
 
 	if len(missingRequirements) > 0 {
@@ -102,4 +109,35 @@ func IsUsernameUnique(username string) error {
 		return errors.New("username already exists")
 	}
 	return nil
+}
+
+// isValidBankName checks if the bank name is valid (not empty, <= 20 characters, no special characters)
+func IsValidBankName(bankName string) bool {
+	// Check if the bank name is not empty
+	if bankName == "" {
+		return false
+	}
+
+	// Check if the bank name length is within the allowed limit (20 characters)
+	if len(bankName) > 20 {
+		return false
+	}
+
+	// Check if the bank name contains only alphanumeric characters
+	for _, char := range bankName {
+		if (char < 'A' || char > 'Z') && (char < 'a' || char > 'z') && (char < '0' || char > '9') {
+			return false
+		}
+	}
+	return true
+}
+
+func containsSpecialCharacters(s string) bool {
+	// Define a regular expression pattern for special characters
+	// You can customize this pattern based on your definition of special characters
+	// This example pattern allows any character that is not a letter or a number
+	pattern := regexp.MustCompile(`[^a-zA-Z0-9]`)
+
+	// Check if the string contains any special characters
+	return pattern.MatchString(s)
 }
