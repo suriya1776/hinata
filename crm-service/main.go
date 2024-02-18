@@ -12,10 +12,16 @@ func main() {
 	router := gin.Default()
 
 	// Initialize the database
-	err := database.InitializeDB()
+	err := database.InitializeMasterUser()
 	if err != nil {
-		log.Fatal("Failed to initialize the database:", err)
+		log.Fatal("Failed to initialize the master user:", err)
 	}
+
+	err = database.InitializeBankState()
+	if err != nil {
+		log.Fatal("Failed to initialize the bank state:", err)
+	}
+
 	// Register API routes
 	routes.SetupAuthRoutes(router)
 	routes.SetupUserRoutes(router)

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
@@ -13,7 +12,6 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the token from the Authorization header
 		tokenString := c.GetHeader("Authorization")
-		log.Println("Token:", tokenString)
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing authorization token"})
 			c.Abort()

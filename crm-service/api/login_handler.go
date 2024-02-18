@@ -11,7 +11,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const tokenExpiration = 1 * time.Minute // Token expiration time
+// Token will expire in 5 minutes
+const tokenExpiration = 5 * time.Minute // Token expiration time
+
 func LoginHandler(c *gin.Context) {
 	var loginRequest models.LoginRequest
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
@@ -60,4 +62,29 @@ func generateToken(user *models.BankUser) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+// user login
+func UserProfileHandler(c *gin.Context) {
+	// Extract user information from the token
+	username, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing token"})
+		return
+	}
+
+	role, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing token"})
+		return
+	}
+
+	// Customize this part based on your user data retrieval logic
+	userProfile := map[string]interface{}{
+		"username": username,
+		"role":     role,
+		// Add other user details as needed
+	}
+
+	c.JSON(http.StatusOK, gin.H{"userProfile": userProfile})
 }
