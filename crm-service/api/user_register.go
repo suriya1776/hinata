@@ -9,9 +9,8 @@ import (
 )
 
 func RegisterRoutes(router *gin.Engine) {
-	// Define your routes here
 	router.POST("/register", RegisterHandler)
-	// Add more routes as needed
+	router.POST("/login", LoginHandler)
 }
 
 func RegisterHandler(c *gin.Context) {

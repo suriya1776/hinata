@@ -45,22 +45,20 @@ func init() {
 	usersCollection = client.Database("hinata").Collection("users")
 }
 
-// CreateUser creates a new user in the "users" collection
-// CreateUser creates a new user in the "users" collection
+// RegisterUser creates a new user in the "users" collection
 func RegisterUser(c *gin.Context, user models.BankUser) error {
-	// Check if the bank name already exists
-	count, err := usersCollection.CountDocuments(context.TODO(), bson.M{"bankName": user.BankName})
+	// Fetch the admin user from the database
+	adminUser, err := getAdminUser()
 	if err != nil {
 		return err
 	}
-	if count > 0 {
-		return ErrBankExists
-	}
+
+	// Use the bank name from the admin user
+	user.BankName = adminUser.BankName
 
 	// Perform password strength check
 	err = isStrongPassword(user.Password)
 	if err != nil {
-		// Return the error without attempting to handle it here
 		return err
 	}
 
@@ -71,9 +69,27 @@ func RegisterUser(c *gin.Context, user models.BankUser) error {
 	}
 	user.Password = hashedPassword
 
+	// Always set the role to "user" for registration
+	user.Role = "user"
+
 	// Insert the user
 	_, err = usersCollection.InsertOne(context.TODO(), user)
 	return err
+}
+
+// getAdminUser fetches an admin user from the database
+func getAdminUser() (*models.BankUser, error) {
+	// Create a filter to find the admin user
+	filter := bson.M{"role": "admin"}
+
+	// Find the admin user in the database
+	var adminUser models.BankUser
+	err := usersCollection.FindOne(context.TODO(), filter).Decode(&adminUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return &adminUser, nil
 }
 
 // isStrongPassword checks if the password meets the strength criteria
@@ -124,4 +140,24 @@ func hashPassword(password string) (string, error) {
 		return "", err
 	}
 	return string(hashedPassword), nil
+}
+
+func GetUserByUsername(username string) (*models.BankUser, error) {
+	var user models.BankUser
+
+	// Create a filter to find the user by username
+	filter := bson.M{"username": username}
+
+	// Find the user in the database
+	err := usersCollection.FindOne(context.TODO(), filter).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// No user found with the provided username
+			return nil, nil
+		}
+		// An error occurred while fetching the user
+		return nil, err
+	}
+
+	return &user, nil
 }
