@@ -4,7 +4,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/suriya1776/hinata/crm-service/api"
+	"github.com/suriya1776/hinata/usermangement-service/api"
 )
 
 func SetupBankRoutes(router *gin.Engine) {

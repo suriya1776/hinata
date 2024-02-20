@@ -4,8 +4,9 @@ package database
 import (
 	"context"
 	"log"
+	"time"
 
-	"github.com/suriya1776/hinata/crm-service/models"
+	"github.com/suriya1776/hinata/usermangement-service/models"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -24,17 +25,18 @@ func InitializeMasterUser() error {
 	}
 
 	// Hash the master user's password before inserting
-	hashedMasterPassword, err := hashPassword("adminpassword")
+	hashedMasterPassword, err := HashPassword("adminpassword")
 	if err != nil {
 		return err
 	}
 
 	// Create the master user
 	masterUser := models.BankUser{
-		Username:    "admin",
-		Password:    hashedMasterPassword, // You should hash the password before storing it in production
-		Designation: "admin",
-		Roles:       []string{"admin"},
+		Username:           "admin",
+		Password:           hashedMasterPassword, // You should hash the password before storing it in production
+		Designation:        "admin",
+		Roles:              []string{"admin"},
+		LastPasswordUpdate: time.Now(), // Set the initial value to the current time
 	}
 
 	// Insert the master user into the "users" collection

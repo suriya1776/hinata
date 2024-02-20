@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/suriya1776/hinata/crm-service/models"
+	"github.com/suriya1776/hinata/usermangement-service/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
@@ -61,7 +61,7 @@ func isStrongPassword(password string) error {
 }
 
 // You need to implement these functions based on your preferred password hashing library
-func hashPassword(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -141,3 +141,6 @@ func containsSpecialCharacters(s string) bool {
 	// Check if the string contains any special characters
 	return pattern.MatchString(s)
 }
+
+// generatePasswordResetToken generates a unique token for password reset
+// Generate a password reset token and send the reset email

@@ -8,7 +8,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/suriya1776/hinata/crm-service/models"
+	"github.com/suriya1776/hinata/usermangement-service/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

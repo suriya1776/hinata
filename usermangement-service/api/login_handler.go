@@ -1,13 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/suriya1776/hinata/crm-service/database"
-	"github.com/suriya1776/hinata/crm-service/models"
+	"github.com/suriya1776/hinata/usermangement-service/database"
+	"github.com/suriya1776/hinata/usermangement-service/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -32,6 +33,14 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
+	// Check if the password has expired
+	if time.Since(user.LastPasswordUpdate).Minutes() > 2 {
+		// Password has expired
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Password has expired. Please reset your password"})
+		return
+	}
+
+	// Continue with regular login logic
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -90,4 +99,67 @@ func UserProfileHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"userProfile": userProfile})
+}
+
+// Define the password reset handler
+// Define the password reset handler
+// Define the password reset handler
+func ResetPasswordHandler(c *gin.Context) {
+	// Retrieve the necessary information from the request
+	var resetRequest models.ResetRequest
+	if err := c.ShouldBindJSON(&resetRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate the provided old password
+	user, err := database.GetUserByUsername(resetRequest.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	fmt.Println("Before update:")
+	fmt.Println("LastPasswordUpdate:", user.LastPasswordUpdate)
+	if user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(resetRequest.OldPassword))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid old password"})
+		return
+	}
+
+	// Check if the new password and confirm password match
+	if resetRequest.NewPassword != resetRequest.ConfirmPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "New password and confirm password do not match"})
+		return
+	}
+
+	// Update the user's password and reset flag
+	hashedNewPassword, err := database.HashPassword(resetRequest.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash the new password"})
+		return
+	}
+
+	// Update user fields
+	user.Password = hashedNewPassword
+
+	// Update the last password update time
+	user.LastPasswordUpdate = time.Now()
+
+	fmt.Println("After update:")
+	fmt.Println("LastPasswordUpdate:", user.LastPasswordUpdate)
+
+	// Update the user in the database
+	err = database.UpdateUser(*user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password reset successful"})
 }

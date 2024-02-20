@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/suriya1776/hinata/crm-service/database"
+	"github.com/suriya1776/hinata/usermangement-service/database"
 )
 
 func UpdateBankNameHandler(c *gin.Context) {

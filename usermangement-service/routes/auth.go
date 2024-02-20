@@ -4,7 +4,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/suriya1776/hinata/crm-service/api"
+	"github.com/suriya1776/hinata/usermangement-service/api"
 )
 
 func SetupAuthRoutes(router *gin.Engine) {
@@ -12,6 +12,7 @@ func SetupAuthRoutes(router *gin.Engine) {
 	{
 		authGroup.POST("/login", api.LoginHandler)
 		authGroup.POST("/register", api.RegisterHandler)
+		authGroup.POST("/resetpassword", api.ResetPasswordHandler)
 		// Other authentication routes...
 	}
 }
